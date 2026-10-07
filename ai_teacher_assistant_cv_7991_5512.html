@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trợ Lý Giáo Viên AI - Chuẩn Công Văn 7991 / 5512</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts: Inter & Roboto -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Marked.js for Markdown Parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  
+  <!-- html2pdf for PDF export fallback -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            },
+            edu: {
+              teal: '#0d9488',
+              blue: '#2563eb',
+              sky: '#0284c7',
+              emerald: '#059669',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+    }
+
+    /* Print Preview & Official Document Formatting */
+    .lesson-plan-preview {
+      background-color: #ffffff;
+      color: #000000;
+      font-family: 'Times New Roman', Times, serif;
+      line-height: 1.5;
+      font-size: 13pt;
+    }
+
+    .lesson-plan-preview h1 { font-size: 16pt; font-weight: bold; text-align: center; margin-bottom: 12px; }
+    .lesson-plan-preview h2 { font-size: 14pt; font-weight: bold; margin-top: 14px; margin-bottom: 6px; }
+    .lesson-plan-preview h3 { font-size: 13pt; font-weight: bold; margin-top: 10px; margin-bottom: 4px; }
+    .lesson-plan-preview p { margin-bottom: 8px; text-align: justify; }
+    .lesson-plan-preview ul, .lesson-plan-preview ol { padding-left: 24px; margin-bottom: 8px; }
+    .lesson-plan-preview table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+    .lesson-plan-preview th, .lesson-plan-preview td { border: 1px solid #000; padding: 6px 8px; text-align: left; font-size: 12pt; }
+    .lesson-plan-preview th { background-color: #f1f5f9; font-weight: bold; text-align: center; }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #previewPrintArea, #previewPrintArea * {
+        visibility: visible;
+      }
+      #previewPrintArea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 20px;
+        box-shadow: none;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Top Navigation Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 no-print">
+    <div class="max-w-7xl mx-mx auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center text-white shadow-md shadow-indigo-200">
+          <i class="fa-solid fa-graduation-cap text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-slate-800 leading-tight">EduPlan AI <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-semibold ml-1">CV 7991 / 5512</span></h1>
+          <p class="text-xs text-slate-500">Trợ lý soạn Giáo án & Đề thi thông minh cho Giáo viên</p>
+        </div>
+      </div>
+
+      <!-- Header actions & Settings -->
+      <div class="flex items-center gap-3">
+        <button onclick="toggleKeyModal()" class="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors border border-slate-200">
+          <i class="fa-solid fa-key text-amber-500"></i>
+          <span id="apiKeyStatus">Thiết lập API Key</span>
+        </button>
+        <button onclick="showHistoryModal()" class="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors border border-slate-200">
+          <i class="fa-solid fa-clock-rotate-left text-indigo-500"></i>
+          <span>Lịch sử</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- LEFT PANEL: Input Form Controls (5 columns on large screens) -->
+    <div class="lg:col-span-5 flex flex-col gap-5 no-print">
+
+      <!-- Product Type Selection -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">1. Chọn loại sản phẩm cần soạn</label>
+        <div class="grid grid-cols-3 gap-2">
+          <button type="button" onclick="selectType('khbd')" id="btn-khbd" class="type-btn p-3 rounded-xl border border-slate-200 hover:border-indigo-400 flex flex-col items-center gap-2 text-center transition-all bg-indigo-50/70 border-indigo-500 text-indigo-700 shadow-sm">
+            <i class="fa-solid fa-book-bookmark text-xl"></i>
+            <span class="text-xs font-semibold">Giáo án (KHBD)</span>
+          </button>
+          
+          <button type="button" onclick="selectType('slide')" id="btn-slide" class="type-btn p-3 rounded-xl border border-slate-200 hover:border-indigo-400 flex flex-col items-center gap-2 text-center transition-all text-slate-600 hover:bg-slate-50">
+            <i class="fa-solid fa-file-powerpoint text-xl"></i>
+            <span class="text-xs font-semibold">Slide Dàn ý</span>
+          </button>
+
+          <button type="button" onclick="selectType('exam')" id="btn-exam" class="type-btn p-3 rounded-xl border border-slate-200 hover:border-indigo-400 flex flex-col items-center gap-2 text-center transition-all text-slate-600 hover:bg-slate-50">
+            <i class="fa-solid fa-file-pen text-xl"></i>
+            <span class="text-xs font-semibold">Đề thi / Ma trận</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Information Form -->
+      <form id="generatorForm" onsubmit="handleGenerate(event)" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-2">2. Thông tin bài dạy & Yêu cầu</label>
+        
+        <!-- Môn học & Lớp -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-700 mb-1">Môn học <span class="text-rose-500">*</span></label>
+            <input type="text" id="subject" required placeholder="VD: Toán học, Ngữ văn..." class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-700 mb-1">Khối Lớp <span class="text-rose-500">*</span></label>
+            <select id="grade" required class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
+              <option value="">-- Chọn lớp --</option>
+              <optgroup label="Tiểu học">
+                <option value="Lớp 1">Lớp 1</option>
+                <option value="Lớp 2">Lớp 2</option>
+                <option value="Lớp 3">Lớp 3</option>
+                <option value="Lớp 4">Lớp 4</option>
+                <option value="Lớp 5">Lớp 5</option>
+              </optgroup>
+              <optgroup label="THCS">
+                <option value="Lớp 6">Lớp 6</option>
+                <option value="Lớp 7">Lớp 7</option>
+                <option value="Lớp 8">Lớp 8</option>
+                <option value="Lớp 9">Lớp 9</option>
+              </optgroup>
+              <optgroup label="THPT">
+                <option value="Lớp 10">Lớp 10</option>
+                <option value="Lớp 11">Lớp 11</option>
+                <option value="Lớp 12">Lớp 12</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+
+        <!-- Bộ sách & Số tiết -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-700 mb-1">Bộ sách giáo khoa</label>
+            <select id="curriculum" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
+              <option value="Kết nối trí thức với cuộc sống">Kết nối trí thức</option>
+              <option value="Cánh Diều">Cánh Diều</option>
+              <option value="Chân trời sáng tạo">Chân trời sáng tạo</option>
+              <option value="Chương trình chung">Chương trình chung</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-700 mb-1">Thời lượng (Số tiết)</label>
+            <input type="number" id="periods" value="1" min="1" max="10" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
+          </div>
+        </div>
+
+        <!-- Tên bài học -->
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">Tên Bài học / Chủ đề <span class="text-rose-500">*</span></label>
+          <input type="text" id="lessonTitle" required placeholder="VD: Khai phá dữ liệu với Python hoặc Bài 3: Phong trào Tây Sơn" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
+        </div>
+
+        <!-- Yêu cầu bổ sung tùy chọn theo loại -->
+        <div id="dynamicOptions">
+          <!-- Dynamic Content loaded via JS based on selected type -->
+        </div>
+
+        <!-- Yêu cầu thêm -->
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">Ghi chú / Yêu cầu cụ thể thêm</label>
+          <textarea id="additionalPrompt" rows="3" placeholder="Nhập thêm chi tiết về đối tượng học sinh (khá/giỏi/trung bình), ứng dụng CNTT, học qua trải nghiệm..." class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all resize-none"></textarea>
+        </div>
+
+        <!-- Action Button -->
+        <button type="submit" id="btnSubmit" class="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-indigo-200 flex items-center justify-center gap-2 transition-all transform active:scale-[0.99]">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <span>Tạo Nội Dung Ngay Với AI</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- RIGHT PANEL: Preview & Output (7 columns on large screens) -->
+    <div class="lg:col-span-7 flex flex-col gap-4">
+
+      <!-- Action Toolbar -->
+      <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-2 no-print">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+          <span class="text-xs font-semibold text-slate-700" id="previewStatus">Khung xem trước kết quả</span>
+        </div>
+
+        <div class="flex items-center gap-1 sm:gap-2">
+          <button onclick="copyResult()" title="Sao chép Markdown" class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg text-xs font-medium flex items-center gap-1 border border-slate-200">
+            <i class="fa-regular fa-copy"></i>
+            <span class="hidden sm:inline">Sao chép</span>
+          </button>
+          
+          <button onclick="downloadWord()" title="Tải file Word" class="p-2 text-blue-700 hover:bg-blue-50 rounded-lg text-xs font-medium flex items-center gap-1 border border-blue-200 bg-blue-50/50">
+            <i class="fa-regular fa-file-word"></i>
+            <span class="hidden sm:inline">Xuất Word</span>
+          </button>
+
+          <button onclick="printDocument()" title="In hoặc Tải PDF" class="p-2 text-indigo-700 hover:bg-indigo-50 rounded-lg text-xs font-medium flex items-center gap-1 border border-indigo-200 bg-indigo-50/50">
+            <i class="fa-solid fa-print"></i>
+            <span class="hidden sm:inline">In / PDF</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Result Content Box -->
+      <div class="flex-1 bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8 overflow-y-auto max-h-[780px] relative min-h-[500px]">
+        
+        <!-- Loading Spinner Overlay -->
+        <div id="loadingOverlay" class="hidden absolute inset-0 bg-white/90 backdrop-blur-sm z-20 flex flex-col items-center justify-center p-6 text-center">
+          <div class="relative w-16 h-16 mb-4">
+            <div class="absolute inset-0 rounded-full border-4 border-indigo-100"></div>
+            <div class="absolute inset-0 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center text-indigo-600 font-bold">
+              <i class="fa-solid fa-brain text-lg animate-pulse"></i>
+            </div>
+          </div>
+          <h3 class="text-base font-bold text-slate-800 mb-1">AI đang xây dựng bài dạy...</h3>
+          <p class="text-xs text-slate-500 max-w-sm">Đang phân tích cấu trúc chuẩn Công văn 7991/5512, tối ưu hóa các hoạt động dạy học. Vui lòng chờ vài giây!</p>
+        </div>
+
+        <!-- Empty State Placeholder -->
+        <div id="emptyState" class="h-full flex flex-col items-center justify-center text-center py-12 text-slate-400">
+          <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4 text-slate-400 text-2xl">
+            <i class="fa-solid fa-file-lines"></i>
+          </div>
+          <p class="text-sm font-semibold text-slate-600 mb-1">Chưa có nội dung tạo sẵn</p>
+          <p class="text-xs text-slate-400 max-w-xs">Điền thông tin bài học ở góc bên trái và bấm nút "Tạo Nội Dung Ngay Với AI" để bắt đầu.</p>
+        </div>
+
+        <!-- Rendered Printable Area -->
+        <div id="previewPrintArea" class="lesson-plan-preview hidden">
+          <!-- Rendered markdown goes here -->
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- API Key Modal -->
+  <div id="keyModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-key text-amber-500"></i> Cấu hình Gemini API Key
+        </h3>
+        <button onclick="toggleKeyModal()" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <p class="text-xs text-slate-600 mb-4">
+        Bạn có thể nhập API key cá nhân từ Google AI Studio để gọi trực tiếp model Gemini Flash mới nhất. Nếu để trống, hệ thống sẽ sử dụng key công cộng hoặc bộ tạo mẫu sẵn.
+      </p>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">API Key Gemini</label>
+          <input type="password" id="customApiKey" placeholder="AIzaSy..." class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button onclick="saveApiKey('')" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Xóa key cũ</button>
+          <button onclick="saveApiKeyFromInput()" class="px-4 py-1.5 text-xs font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Lưu cấu hình</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Modal -->
+  <div id="historyModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl border border-slate-100 flex flex-col max-h-[80vh]">
+      <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-clock-rotate-left text-indigo-500"></i> Lịch Sử Bài Đã Tạo
+        </h3>
+        <button onclick="hideHistoryModal()" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div id="historyList" class="flex-1 overflow-y-auto space-y-3 pr-1">
+        <!-- History Items Inserted Here -->
+      </div>
+
+      <div class="flex justify-between items-center border-t border-slate-100 pt-3 mt-4">
+        <button onclick="clearHistory()" class="text-xs text-rose-600 hover:underline">Xóa lịch sử</button>
+        <button onclick="hideHistoryModal()" class="px-4 py-1.5 text-xs font-medium bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-800 text-white px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-3 text-xs">
+    <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+    <span id="toastMsg">Thông báo</span>
+  </div>
+
+  <script>
+    // Application State Variables
+    let currentType = 'khbd'; // 'khbd' | 'slide' | 'exam'
+    let generatedMarkdown = '';
+    let apiKey = localStorage.getItem('edu_gemini_api_key') || '';
+
+    // Init UI on load
+    window.onload = function() {
+      updateApiKeyUI();
+      renderDynamicOptions();
+    };
+
+    function toggleKeyModal() {
+      document.getElementById('keyModal').classList.toggle('hidden');
+    }
+
+    function showHistoryModal() {
+      renderHistoryList();
+      document.getElementById('historyModal').classList.remove('hidden');
+    }
+
+    function hideHistoryModal() {
+      document.getElementById('historyModal').classList.add('hidden');
+    }
+
+    function updateApiKeyUI() {
+      const statusEl = document.getElementById('apiKeyStatus');
+      if (apiKey) {
+        statusEl.innerText = 'Key Cá Nhân: Đã cấu hình';
+        statusEl.classList.add('text-emerald-600');
+      } else {
+        statusEl.innerText = 'Dùng Key Hệ Thống';
+        statusEl.classList.remove('text-emerald-600');
+      }
+    }
+
+    function saveApiKeyFromInput() {
+      const val = document.getElementById('customApiKey').value.trim();
+      saveApiKey(val);
+    }
+
+    function saveApiKey(val) {
+      apiKey = val;
+      if (val) {
+        localStorage.setItem('edu_gemini_api_key', val);
+        showToast('Đã lưu API Key cá nhân thành công!');
+      } else {
+        localStorage.removeItem('edu_gemini_api_key');
+        document.getElementById('customApiKey').value = '';
+        showToast('Đã xóa API Key cá nhân. Sử dụng thiết lập mặc định.');
+      }
+      updateApiKeyUI();
+      toggleKeyModal();
+    }
+
+    function selectType(type) {
+      currentType = type;
+      document.querySelectorAll('.type-btn').forEach(btn => {
+        btn.classList.remove('bg-indigo-50/70', 'border-indigo-500', 'text-indigo-700', 'shadow-sm');
+        btn.classList.add('text-slate-600');
+      });
+
+      const activeBtn = document.getElementById(`btn-${type}`);
+      activeBtn.classList.add('bg-indigo-50/70', 'border-indigo-500', 'text-indigo-700', 'shadow-sm');
+      activeBtn.classList.remove('text-slate-600');
+
+      renderDynamicOptions();
+    }
+
+    function renderDynamicOptions() {
+      const container = document.getElementById('dynamicOptions');
+      if (currentType === 'khbd') {
+        container.innerHTML = `
+          <div>
+            <label class="block text-xs font-medium text-slate-700 mb-1">Thiết bị dạy học & Học liệu</label>
+            <input type="text" id="equipment" placeholder="VD: Máy chiếu, Ti vi, Phiếu học tập số 1..." class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg">
+          </div>
+        `;
+      } else if (currentType === 'slide') {
+        container.innerHTML = `
+          <div>
+            <label class="block text-xs font-medium text-slate-700 mb-1">Số lượng Slide mong muốn</label>
+            <input type="number" id="slideCount" value="8" min="4" max="20" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg">
+          </div>
+        `;
+      } else if (currentType === 'exam') {
+        container.innerHTML = `
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-700 mb-1">Số câu Trắc nghiệm</label>
+              <input type="number" id="mcqCount" value="10" min="0" max="40" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-700 mb-1">Số câu Tự luận</label>
+              <input type="number" id="essayCount" value="2" min="0" max="10" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg">
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function buildSystemAndUserPrompts() {
+      const subject = document.getElementById('subject').value;
+      const grade = document.getElementById('grade').value;
+      const curriculum = document.getElementById('curriculum').value;
+      const lessonTitle = document.getElementById('lessonTitle').value;
+      const periods = document.getElementById('periods').value;
+      const additional = document.getElementById('additionalPrompt').value;
+
+      let prompt = '';
+      let systemInstruction = 'Bạn là chuyên gia giáo dục phổ thông Việt Nam, am hiểu sâu sắc Công văn 5512/BGDĐT và Công văn 7991/BGDĐT về xây dựng kế hoạch bài dạy và kiểm tra đánh giá.';
+
+      if (currentType === 'khbd') {
+        const equipment = document.getElementById('equipment')?.value || 'Máy chiếu, phiếu học tập';
+        prompt = `
+Hãy soạn KẾ HOẠCH BÀI DẠY (Giáo án) theo chuẩn CÔNG VĂN 7991 / 5512 BGDĐT với thông tin sau:
+- Môn học: ${subject}
+- Lớp: ${grade}
+- Bộ sách: ${curriculum}
+- Tên bài học: ${lessonTitle}
+- Thời lượng: ${periods} tiết
+- Thiết bị dạy học: ${equipment}
+- Yêu cầu thêm: ${additional}
+
+CẤU TRÚC BÀI DẠY BẮT BUỘC THEO CÔNG VĂN 5512/7991:
+I. MỤC TIÊU:
+1. Về kiến thức
+2. Về năng lực (Năng lực chung, Năng lực đặc thù)
+3. Về phẩm chất
+II. THIẾT BỊ DẠY HỌC VÀ HỌC LIỆU
+III. TIẾN TRÌNH DẠY HỌC:
+Trình bày đủ 4 HOẠT ĐỘNG:
+- Hoạt động 1: Mở đầu (Xác định vấn đề/nhiệm vụ học tập)
+- Hoạt động 2: Hình thành kiến thức mới
+- Hoạt động 3: Luyện tập
+- Hoạt động 4: Vận dụng
+
+Mỗi Hoạt động phải có đầy đủ 4 BƯỚC:
++ Bước 1: Chuyển giao nhiệm vụ
++ Bước 2: Thực hiện nhiệm vụ
++ Bước 3: Báo cáo, thảo luận
++ Bước 4: Kết luận, nhận định
+
+Hãy định dạng kết quả dưới dạng Markdown chuyên nghiệp, trình bày rõ ràng các tiêu đề bằng dấu #, ##.
+        `;
+      } else if (currentType === 'slide') {
+        const slideCount = document.getElementById('slideCount')?.value || 8;
+        prompt = `
+Hãy xây dựng DÀN Ý SLIDE BÀI GIẢNG CHI TIẾT cho bài học sau:
+- Môn học: ${subject}
+- Lớp: ${grade}
+- Bộ sách: ${curriculum}
+- Bài học: ${lessonTitle}
+- Thời lượng: ${periods} tiết
+- Số lượng Slide dự kiến: ${slideCount} slides
+- Yêu cầu thêm: ${additional}
+
+YÊU CẦU ĐỊNH DẠNG DÀN Ý SLIDE:
+Mỗi Slide bao gồm:
+- Tiêu đề Slide
+- Nội dung chính hiển thị trên Slide (Bullet points)
+- Lời thoại / Hướng dẫn của giáo viên khi chiếu Slide này
+- Gợi ý hình ảnh/Video/Minh họa sinh động.
+        `;
+      } else if (currentType === 'exam') {
+        const mcqCount = document.getElementById('mcqCount')?.value || 10;
+        const essayCount = document.getElementById('essayCount')?.value || 2;
+        prompt = `
+Xây dựng MA TRẬN VÀ ĐỀ KIỂM TRA CHUẨN CÔNG VĂN BGDĐT:
+- Môn học: ${subject}
+- Lớp: ${grade}
+- Bài học / Chủ đề: ${lessonTitle}
+- Số câu trắc nghiệm (4 lựa chọn A, B, C, D): ${mcqCount} câu
+- Số câu tự luận: ${essayCount} câu
+- Yêu cầu thêm: ${additional}
+
+YÊU CẦU NỘI DUNG:
+1. BẢNG MA TRẬN ĐỀ KIỂM TRA (Phân bổ các mức độ: Nhận biết, Thông hiểu, Vận dụng, Vận dụng cao dưới dạng Bảng Markdown).
+2. NỘI DUNG ĐỀ KIỂM TRA (Gồm Phần I: Trắc nghiệm; Phần II: Tự luận).
+3. ĐÁP ÁN VÀ HƯỚNG DẪN CHẤM CHI TIẾT KÈM THANG ĐIỂM.
+        `;
+      }
+
+      return { prompt, systemInstruction };
+    }
+
+    async function handleGenerate(e) {
+      e.preventDefault();
+      
+      const { prompt, systemInstruction } = buildSystemAndUserPrompts();
+      
+      // UI Loading state
+      document.getElementById('loadingOverlay').classList.remove('hidden');
+      document.getElementById('emptyState').classList.add('hidden');
+      document.getElementById('previewPrintArea').classList.add('hidden');
+
+      try {
+        const finalApiKey = apiKey || ""; // API Key handled automatically if empty
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${finalApiKey}`;
+
+        const payload = {
+          contents: [{ parts: [{ text: prompt }] }],
+          systemInstruction: { parts: [{ text: systemInstruction }] }
+        };
+
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          throw new Error(`Lỗi kết nối API: ${res.status}`);
+        }
+
+        const data = await res.json();
+        const candidate = data.candidates?.[0];
+        
+        if (candidate && candidate.content?.parts?.[0]?.text) {
+          generatedMarkdown = candidate.content.parts[0].text;
+          renderOutput(generatedMarkdown);
+          saveToHistory(generatedMarkdown);
+          showToast('Đã hoàn thành tạo nội dung thành công!');
+        } else {
+          throw new Error('Dữ liệu AI trả về không hợp lệ');
+        }
+
+      } catch (err) {
+        console.error(err);
+        showToast('Có lỗi xảy ra khi tạo nội dung. Vui lòng kiểm tra lại!', 'error');
+      } finally {
+        document.getElementById('loadingOverlay').classList.add('hidden');
+      }
+    }
+
+    function renderOutput(markdown) {
+      const printArea = document.getElementById('previewPrintArea');
+      printArea.innerHTML = marked.parse(markdown);
+      printArea.classList.remove('hidden');
+      document.getElementById('previewStatus').innerText = 'Xem trước Kế hoạch dạy học';
+    }
+
+    function saveToHistory(content) {
+      const subject = document.getElementById('subject').value;
+      const lessonTitle = document.getElementById('lessonTitle').value;
+      const item = {
+        id: Date.now(),
+        type: currentType,
+        title: `${subject} - ${lessonTitle}`,
+        date: new Date().toLocaleString('vi-VN'),
+        content: content
+      };
+
+      let history = JSON.parse(localStorage.getItem('edu_history') || '[]');
+      history.unshift(item);
+      // Limit to max 15 recent items
+      if (history.length > 15) history.pop();
+      localStorage.setItem('edu_history', JSON.stringify(history));
+    }
+
+    function renderHistoryList() {
+      const container = document.getElementById('historyList');
+      const history = JSON.parse(localStorage.getItem('edu_history') || '[]');
+
+      if (history.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Chưa có lịch sử soạn bài nào.</p>`;
+        return;
+      }
+
+      container.innerHTML = history.map(item => `
+        <div class="p-3 border border-slate-200 rounded-xl hover:border-indigo-300 transition-all bg-slate-50 flex justify-between items-center">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-700 uppercase">${item.type}</span>
+              <h4 class="text-xs font-semibold text-slate-800">${item.title}</h4>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1"><i class="fa-regular fa-clock"></i> ${item.date}</p>
+          </div>
+          <button onclick="loadHistoryItem(${item.id})" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium px-3 py-1 bg-white border border-slate-200 rounded-lg">
+            Xem lại
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function loadHistoryItem(id) {
+      const history = JSON.parse(localStorage.getItem('edu_history') || '[]');
+      const target = history.find(h => h.id === id);
+      if (target) {
+        generatedMarkdown = target.content;
+        renderOutput(generatedMarkdown);
+        hideHistoryModal();
+        document.getElementById('emptyState').classList.add('hidden');
+        showToast('Đã tải nội dung từ lịch sử!');
+      }
+    }
+
+    function clearHistory() {
+      localStorage.removeItem('edu_history');
+      renderHistoryList();
+      showToast('Đã xóa toàn bộ lịch sử!');
+    }
+
+    function copyResult() {
+      if (!generatedMarkdown) {
+        showToast('Chưa có nội dung để sao chép!', 'error');
+        return;
+      }
+      
+      // Fallback for document copy
+      const tempTextArea = document.createElement('textarea');
+      tempTextArea.value = generatedMarkdown;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempTextArea);
+
+      showToast('Đã sao chép nội dung Markdown!');
+    }
+
+    function downloadWord() {
+      if (!generatedMarkdown) {
+        showToast('Chưa có nội dung để xuất file!', 'error');
+        return;
+      }
+
+      const htmlContent = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+          <meta charset="utf-8">
+          <title>Export Word</title>
+          <style>
+            body { font-family: 'Times New Roman', serif; font-size: 13pt; line-height: 1.5; }
+            h1 { font-size: 16pt; font-weight: bold; text-align: center; }
+            h2 { font-size: 14pt; font-weight: bold; }
+            table { border-collapse: collapse; width: 100%; }
+            td, th { border: 1px solid black; padding: 5px; }
+          </style>
+        </head>
+        <body>
+          ${marked.parse(generatedMarkdown)}
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob(['\ufeff', htmlContent], {
+        type: 'application/msword'
+      });
+
+      const lessonTitle = document.getElementById('lessonTitle').value || 'GiaoAn_EduPlan';
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${lessonTitle.replace(/[^a-zA-Z0-9_]/g, '_')}_7991.doc`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      showToast('Đã tải xuống file Word thành công!');
+    }
+
+    function printDocument() {
+      if (!generatedMarkdown) {
+        showToast('Chưa có nội dung để in!', 'error');
+        return;
+      }
+      window.print();
+    }
+
+    // Helper Toast System
+    function showToast(msg, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      const toastIcon = document.getElementById('toastIcon');
+
+      toastMsg.innerText = msg;
+      if (type === 'error') {
+        toastIcon.className = 'fa-solid fa-circle-exclamation text-rose-400';
+      } else {
+        toastIcon.className = 'fa-solid fa-circle-check text-emerald-400';
+      }
+
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
